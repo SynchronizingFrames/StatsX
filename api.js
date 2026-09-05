@@ -21,6 +21,10 @@
   function getPending() { var s = store("session"); return s ? s.getItem(PENDING_KEY) : null; }
   function setPending(v) { var s = store("session"); if (!s) return; if (v) s.setItem(PENDING_KEY, v); else s.removeItem(PENDING_KEY); }
 
+  // Be forgiving about how the Worker URL was pasted: strip trailing slashes and
+  // stray whitespace so "https://x.workers.dev/" + "/v1/login" never becomes "//v1/login".
+  API_URL = String(API_URL).trim().replace(/\/+$/, "");
+
   function configured() { return !/YOURNAME/.test(API_URL); }
 
   function request(method, path, body, extraHeaders) {
