@@ -62,7 +62,41 @@
 			<div><span class="mono">UNLOCKS / 24H</span><b id="sUnlocks">0</b></div>
 			<div><span class="mono">KEYS ISSUED</span><b id="sKeys">0</b></div>
 			<div><span class="mono">KEY LENGTH</span><b id="sHours">12h</b></div>
+			<div><span class="mono">GIFT CODES OPEN</span><b id="sCodes">0</b></div>
 			<div><span class="mono">MOTD</span><b id="sMotd" class="small">--</b></div>
+		</div>
+
+		<div class="term gen">
+			<div class="term-bar mono"><span>KEY GENERATOR</span><span id="genBatch">READY</span></div>
+			<div class="gen-body">
+				<form id="genForm" class="gen-form" novalidate>
+					<label class="fld"><span class="mono">LENGTH</span>
+						<div class="inp"><select id="genDuration">
+							<option value="12h">12 hours</option>
+							<option value="1d">1 day</option>
+							<option value="7d">7 days</option>
+							<option value="1mo" selected>1 month</option>
+							<option value="1y">1 year</option>
+							<option value="10y">10 years</option>
+							<option value="89y">89 years</option>
+							<option value="inf">Infinite</option>
+						</select></div>
+					</label>
+					<label class="fld sm"><span class="mono">HOW MANY</span>
+						<div class="inp"><input id="genCount" type="number" min="1" max="25" value="1" inputmode="numeric"></div>
+					</label>
+					<label class="fld"><span class="mono">NOTE <em>optional</em></span>
+						<div class="inp"><input id="genNote" placeholder="who is this for" maxlength="120" autocomplete="off"></div>
+					</label>
+					<button class="btn btn-solid btn-lg" id="btnGen" type="submit">Generate</button>
+				</form>
+				<p class="err mono" id="genErr" hidden></p>
+				<div id="genOut" hidden>
+					<div class="gen-out-head mono"><span id="genOutTitle">NEW CODES</span><button class="mini mono" id="btnCopyAll" type="button">Copy all</button></div>
+					<ul class="codes mono" id="genList"></ul>
+					<p class="tiny mono">Send a code to a friend. They make a free account with their Roblox username, paste the code on their account page (or straight into the in-game key box) and the key is issued to them.</p>
+				</div>
+			</div>
 		</div>
 
 		<div class="a-grid">
@@ -79,6 +113,16 @@
 			<div class="term">
 				<div class="term-bar mono"><span>LIVE EVENTS</span><span id="eCount">0</span></div>
 				<ul class="events" id="eList"><li class="empty mono">nothing yet</li></ul>
+			</div>
+		</div>
+
+		<div class="term">
+			<div class="term-bar mono"><span>GIFT CODES</span><span id="vCount">0</span></div>
+			<div class="tbl-wrap">
+				<table class="tbl">
+					<thead><tr class="mono"><th>Code</th><th>Length</th><th>Status</th><th>Note</th><th>Made</th><th>Actions</th></tr></thead>
+					<tbody id="vBody"><tr><td colspan="6" class="empty mono">no codes yet</td></tr></tbody>
+				</table>
 			</div>
 		</div>
 
