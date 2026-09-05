@@ -4,7 +4,7 @@
 
   // ===== CONFIG (cam edits these) ==========================================
   // 1) Your Cloudflare Worker URL (no trailing slash). Shown on the Worker's overview page.
-  var API_URL = "https://statsx-api.YOURNAME.workers.dev";
+  var API_URL = "https://statsx-api.discordflex911.workers.dev/v1/health";
   // 2) Your work.ink link. In the work.ink dashboard set its DESTINATION URL to:
   //      https://synchronizingframes.github.io/StatsX/account.html?token={TOKEN}
   var WORK_INK_URL = "https://work.ink/2EPc/statsx-key-12hr";
