@@ -19,9 +19,7 @@
 	  * Anti-AFK      - prevents idle kick (no config)
 	  * Rainbow UI    - speed + saturation sliders
 
-	Run in an executor (paste & execute) or as a LocalScript in StarterPlayerScripts.
-	Pure ASCII - safe to copy/paste.
-]]
+--]]
 
 ----------------------------------------------------------------------
 -- Services
