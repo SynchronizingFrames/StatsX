@@ -116,6 +116,16 @@
 						<p class="stage-p">Complete the work.ink steps and you land straight back here with a fresh key issued to <b id="noneUser">@you</b>.</p>
 						<a id="btnGet" class="btn btn-solid btn-lg" href="https://work.ink/2EPc/statsx-key-12hr" rel="noopener">Get free key <span aria-hidden="true">&#8599;</span></a>
 						<p class="tiny mono">Random &middot; issued to your account &middot; bound to one PC on first unlock</p>
+
+						<div class="redeem">
+							<div class="or mono"><span>or redeem a gift code</span></div>
+							<form id="redeemForm" class="row-form" novalidate>
+								<div class="inp"><input id="redeemCode" placeholder="STATSX-GIFT-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" maxlength="26"></div>
+								<button class="btn btn-ghost" id="redeemSubmit" type="submit">Redeem</button>
+							</form>
+							<p class="err mono" id="redeemErr" hidden></p>
+							<p class="tiny mono">Gift codes come from the owner and skip work.ink entirely.</p>
+						</div>
 					</div>
 
 					<div class="stage stage-claim" hidden>
@@ -131,7 +141,7 @@
 							<code id="keyValue" class="mono">STATSX-....-....-....</code>
 							<button id="btnCopy" class="btn btn-solid" type="button">Copy key</button>
 						</div>
-						<div class="progress" aria-hidden="true"><i id="keyBar"></i></div>
+						<div class="progress" id="keyProgress" aria-hidden="true"><i id="keyBar"></i></div>
 						<div class="kv mono">
 							<div><span>Device</span><b id="kvDevice">not bound yet</b></div>
 							<div><span>Unlocks</span><b id="kvUses">0</b></div>
