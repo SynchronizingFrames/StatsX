@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StatsX &mdash; Owner panel</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23ff5c1a'/%3E%3Cpath d='M9 9l14 14M23 9L9 23' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-admin">
+
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+	<a class="mark" href="index.html" aria-label="StatsX home">STATS<span>X</span></a>
+	<div class="top-mid mono">
+		<span class="dot" aria-hidden="true"></span>
+		<span>OWNER PANEL</span><span class="sep">/</span>
+		<span id="apiHost">api</span><span class="sep">/</span>
+		<span id="utcClock">--:--:--</span><span>UTC</span>
+	</div>
+	<nav class="top-nav">
+		<a href="account.html">Account</a>
+		<button class="btn btn-ghost" id="btnLock" type="button">Lock</button>
+	</nav>
+</header>
+
+<main>
+<section class="admin">
+
+	<div id="gate" class="term auth-card center" hidden>
+		<div class="term-bar mono"><span>OWNER ACCESS</span><span>LOCKED</span></div>
+		<form id="gateForm" class="form" novalidate>
+			<label class="fld"><span class="mono">ADMIN KEY</span><div class="inp"><input id="gateKey" type="password" autocomplete="off" placeholder="the ADMIN_KEY secret from your Worker"></div></label>
+			<p class="err mono" id="gateErr" hidden></p>
+			<button class="btn btn-solid btn-lg wide" type="submit">Open panel</button>
+			<p class="tiny mono">Stored in this tab only. Closing the tab locks the panel.</p>
+		</form>
+	</div>
+
+	<div id="panel" hidden>
+		<div class="a-head">
+			<div>
+				<p class="kicker mono">// OWNER</p>
+				<h1 class="display sm"><span class="line"><span>Control room.</span></span></h1>
+			</div>
+			<div class="a-tools">
+				<div class="inp search"><i class="mono">@</i><input id="q" placeholder="search username" autocomplete="off" spellcheck="false"></div>
+				<button class="btn btn-ghost" id="btnRefresh" type="button">Refresh</button>
+			</div>
+		</div>
+
+		<div class="a-stats">
+			<div><span class="mono">ACCOUNTS</span><b id="sUsers">0</b></div>
+			<div><span class="mono">ACTIVE KEYS</span><b id="sActive">0</b></div>
+			<div><span class="mono">UNLOCKS / 24H</span><b id="sUnlocks">0</b></div>
+			<div><span class="mono">KEYS ISSUED</span><b id="sKeys">0</b></div>
+			<div><span class="mono">KEY LENGTH</span><b id="sHours">12h</b></div>
+			<div><span class="mono">MOTD</span><b id="sMotd" class="small">--</b></div>
+		</div>
+
+		<div class="a-grid">
+			<div class="term">
+				<div class="term-bar mono"><span>ACCOUNTS</span><span id="uCount">0</span></div>
+				<div class="tbl-wrap">
+					<table class="tbl">
+						<thead><tr class="mono"><th>User</th><th>Plan</th><th>Key</th><th>Device</th><th>Logins</th><th>Seen</th><th>Actions</th></tr></thead>
+						<tbody id="uBody"><tr><td colspan="7" class="empty mono">no accounts yet</td></tr></tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="term">
+				<div class="term-bar mono"><span>LIVE EVENTS</span><span id="eCount">0</span></div>
+				<ul class="events" id="eList"><li class="empty mono">nothing yet</li></ul>
+			</div>
+		</div>
+
+		<p class="err mono" id="panelErr" hidden></p>
+	</div>
+
+</section>
+</main>
+
+<footer>
+	<span>STATSX &middot; OWNER PANEL</span>
+	<span>Every action here is logged to the account's activity</span>
+	<a href="index.html">Back to site &#8599;</a>
+</footer>
+
+<script src="api.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

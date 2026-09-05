@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StatsX &mdash; Account</title>
+<meta name="description" content="Your StatsX account: claim your free 12-hour key, see how long it has left, and manage your device.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23ff5c1a'/%3E%3Cpath d='M9 9l14 14M23 9L9 23' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-account">
+
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+	<a class="mark" href="index.html" aria-label="StatsX home">STATS<span>X</span></a>
+	<div class="top-mid mono">
+		<span class="dot" aria-hidden="true"></span>
+		<span>BUILD 1.17</span><span class="sep">/</span>
+		<span>ACCOUNTS</span><span class="sep">/</span>
+		<span id="utcClock">--:--:--</span><span>UTC</span>
+	</div>
+	<nav class="top-nav">
+		<a href="index.html#features">Features</a>
+		<a href="index.html#tsb">TSB Hub</a>
+		<a href="account.html" class="btn btn-solid" id="navAuth">Account</a>
+	</nav>
+</header>
+
+<main id="top">
+<section class="acct">
+
+	<!-- ============================== AUTH ============================== -->
+	<div id="viewAuth" class="auth" hidden>
+		<div class="auth-copy">
+			<p class="kicker mono">// ACCOUNT</p>
+			<h1 class="display sm">
+				<span class="line"><span>Your key</span></span>
+				<span class="line accent"><span>lives here.</span></span>
+			</h1>
+			<p class="lede">One account per Roblox username. Complete a single work.ink checkpoint and a <b>random 12-hour key</b> is issued to you &mdash; verified by the server, bound to your PC.</p>
+			<div class="note mono" id="pendingNote" hidden><i></i>Checkpoint received. Log in or create your account to collect the key.</div>
+			<ul class="hero-facts mono">
+				<li><b>12h</b>per key</li>
+				<li><b>1</b>PC per key</li>
+				<li id="factAccounts" hidden><b id="factAccountsN">0</b>accounts</li>
+			</ul>
+		</div>
+
+		<div class="term auth-card">
+			<div class="term-bar mono"><span>STATSX ACCOUNTS</span><span id="authStatus">READY</span></div>
+			<div class="tabs mono" role="tablist">
+				<button class="tab on" type="button" data-tab="login" role="tab">Log in</button>
+				<button class="tab" type="button" data-tab="register" role="tab">Create account</button>
+			</div>
+			<form id="authForm" class="form" novalidate>
+				<label class="fld">
+					<span class="mono">ROBLOX USERNAME</span>
+					<div class="inp"><i class="mono">@</i><input id="fUser" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="your exact Roblox username"></div>
+				</label>
+				<label class="fld">
+					<span class="mono">PASSWORD <em id="pwHint">for this site only</em></span>
+					<div class="inp"><input id="fPass" name="password" type="password" autocomplete="current-password" maxlength="72" placeholder="8+ characters"><button type="button" id="pwToggle" class="mini mono">show</button></div>
+				</label>
+				<p class="err mono" id="authErr" hidden></p>
+				<button class="btn btn-solid btn-lg wide" id="authSubmit" type="submit">Log in <span aria-hidden="true">&#8599;</span></button>
+				<p class="tiny mono" id="authFoot">Your key only works in-game on this exact Roblox account. Never reuse your Roblox password.</p>
+			</form>
+		</div>
+	</div>
+
+	<!-- ============================== DASHBOARD ========================= -->
+	<div id="viewDash" class="dash" hidden>
+
+		<div class="profile">
+			<div class="avatar" id="avatar"><span id="avatarText" class="mono">?</span><img id="avatarImg" alt="" hidden></div>
+			<div class="who">
+				<div class="who-top"><h1 id="dispName">&nbsp;</h1><span class="badge mono" id="planBadge">FREE KEY</span></div>
+				<p class="mono handle" id="handle">@</p>
+				<p class="mono tiny" id="rbxLine"></p>
+			</div>
+			<div class="who-actions">
+				<button class="btn btn-ghost" id="btnPw" type="button">Password</button>
+				<button class="btn btn-ghost" id="btnOut" type="button">Sign out</button>
+			</div>
+		</div>
+
+		<div class="pwpanel" id="pwPanel" hidden>
+			<form id="pwForm" class="form row-form" novalidate>
+				<label class="fld"><span class="mono">CURRENT PASSWORD</span><div class="inp"><input id="pwCur" type="password" autocomplete="current-password" maxlength="72"></div></label>
+				<label class="fld"><span class="mono">NEW PASSWORD</span><div class="inp"><input id="pwNew" type="password" autocomplete="new-password" maxlength="72" placeholder="8+ characters"></div></label>
+				<button class="btn btn-solid" type="submit" id="pwSubmit">Change</button>
+				<p class="err mono" id="pwErr" hidden></p>
+			</form>
+		</div>
+
+		<div class="dash-grid">
+
+			<div class="term key-card" id="keyCard" data-stage="none">
+				<div class="term-bar mono">
+					<span>STATSX KEY &middot; <b id="keyHours">12</b>H</span>
+					<span id="keyBarRight">NO ACTIVE KEY</span>
+				</div>
+				<div class="term-body">
+
+					<div class="stage stage-none">
+						<div class="lock-mark mono">[ NO ACTIVE KEY ]</div>
+						<h3>One checkpoint. Twelve hours.</h3>
+						<p class="stage-p">Complete the work.ink steps and you land straight back here with a fresh key issued to <b id="noneUser">@you</b>.</p>
+						<a id="btnGet" class="btn btn-solid btn-lg" href="https://work.ink/2EPc/statsx-key-12hr" rel="noopener">Get free key <span aria-hidden="true">&#8599;</span></a>
+						<p class="tiny mono">Random &middot; issued to your account &middot; bound to one PC on first unlock</p>
+					</div>
+
+					<div class="stage stage-claim" hidden>
+						<div class="lock-mark mono">[ VERIFYING CHECKPOINT ]</div>
+						<div class="scramble mono" id="scramble">STATSX-****-****-****</div>
+						<ul class="log mono" id="claimLog"></ul>
+					</div>
+
+					<div class="stage stage-key" hidden>
+						<div class="lock-mark mono ok">[ ACTIVE ]</div>
+						<div class="key-label mono">Your key &middot; expires in <b id="keyLeft">--:--:--</b></div>
+						<div class="key-line">
+							<code id="keyValue" class="mono">STATSX-....-....-....</code>
+							<button id="btnCopy" class="btn btn-solid" type="button">Copy key</button>
+						</div>
+						<div class="progress" aria-hidden="true"><i id="keyBar"></i></div>
+						<div class="kv mono">
+							<div><span>Device</span><b id="kvDevice">not bound yet</b></div>
+							<div><span>Unlocks</span><b id="kvUses">0</b></div>
+							<div><span>Issued</span><b id="kvIssued">--</b></div>
+							<div><span>Expires</span><b id="kvExpires">--</b></div>
+						</div>
+						<ol class="use">
+							<li><div>Run the loader in your executor:
+								<div class="code"><code id="loaderCode" class="mono">loadstring(game:HttpGet("..."))()</code><button id="btnCopyLoader" class="mini mono" type="button">copy</button></div>
+							</div></li>
+							<li><div>In the StatsX login card, keep <b id="useUser">@you</b> as the username, paste the key, hit Unlock.</div></li>
+						</ol>
+						<div class="key-actions">
+							<button id="btnReset" class="mini mono" type="button">Reset device</button>
+							<span class="tiny mono" id="resetNote"></span>
+						</div>
+					</div>
+
+					<p class="err mono" id="keyErr" hidden></p>
+					<div class="retry" id="retryWrap" hidden><button class="mini mono" id="btnRetry" type="button">try again</button></div>
+				</div>
+				<div class="term-foot mono" id="keyFoot">A new key can be claimed the moment the current one expires.</div>
+			</div>
+
+			<aside class="side">
+				<div class="stats">
+					<div><span class="mono">MEMBER SINCE</span><b id="stSince">--</b></div>
+					<div><span class="mono">KEYS CLAIMED</span><b id="stClaims">0</b></div>
+					<div><span class="mono">LOGINS</span><b id="stLogins">0</b></div>
+					<div><span class="mono">LAST LOGIN</span><b id="stLast">--</b></div>
+				</div>
+				<div class="activity">
+					<div class="act-head mono"><span>ACTIVITY</span><span id="actCount"></span></div>
+					<ul id="actList"><li class="empty mono">nothing yet</li></ul>
+				</div>
+			</aside>
+
+		</div>
+	</div>
+
+	<!-- ============================== LOADING / ERROR =================== -->
+	<div id="viewLoading" class="loading mono"><span class="dot" aria-hidden="true"></span> loading account</div>
+
+</section>
+</main>
+
+<footer>
+	<span>STATSX &middot; BUILD 1.17</span>
+	<span>Not affiliated with Roblox Corporation &middot; for educational use</span>
+	<a href="index.html">Back to site &#8599;</a>
+</footer>
+
+<script src="api.js"></script>
+<script src="account.js"></script>
+</body>
+</html>
