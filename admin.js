@@ -57,6 +57,8 @@
     $("sUsers").textContent = d.stats.users; $("sActive").textContent = d.stats.active_keys;
     $("sUnlocks").textContent = d.stats.unlocks_24h; $("sKeys").textContent = d.stats.keys_total;
     $("sHours").textContent = d.config.key_hours + "h"; $("sMotd").textContent = d.config.motd || "(none)";
+    $("sCodes").textContent = (d.voucher_stats && d.voucher_stats.open) || 0;
+    renderVouchers(d.vouchers || [], nowTs);
 
     var tb = $("uBody"); tb.innerHTML = "";
     $("uCount").textContent = d.users.length + (d.users.length === 200 ? "+" : "");
@@ -110,12 +112,120 @@
     if (!b) return;
     var action = b.getAttribute("data-a"), user = b.getAttribute("data-u"), body = { action: action, username: user };
     if (action === "ban") { var r = prompt("Ban @" + user + "? Reason (optional):"); if (r === null) return; body.reason = r; }
-    if (action === "grant") { var h = prompt("Grant @" + user + " a key for how many hours?", "24"); if (h === null) return; body.hours = parseInt(h, 10) || 24; }
+    if (action === "grant") {
+      var dur = prompt("Grant @" + user + " a key. Length: 12h / 1d / 7d / 1mo / 1y / 10y / 89y / inf", "1mo");
+      if (dur === null) return;
+      body.duration = dur.trim() || "1mo";
+    }
     if (action === "set_plan") { var p = prompt("Plan for @" + user + " (free / vip / lifetime ...):", "vip"); if (p === null) return; body.plan = p.trim(); }
     if (action === "delete" && !confirm("Delete @" + user + " and all their keys? This cannot be undone.")) return;
     if (action === "revoke" && !confirm("Revoke @" + user + "'s active key?")) return;
     b.disabled = true;
     API.admin.action(adminKey(), body).then(function (r) {
+      b.disabled = false;
+      if (!r.data.ok) return showErr("panelErr", r.data.message || "Action failed.");
+      load();
+    });
+  });
+
+  // ---------- key generator ----------
+  var lastCodes = [];
+
+  function renderCodes(codes, label) {
+    lastCodes = codes.slice();
+    var ul = $("genList"); ul.innerHTML = "";
+    $("genOutTitle").textContent = codes.length + (codes.length === 1 ? " CODE" : " CODES") + " \u00b7 " + label.toUpperCase();
+    for (var i = 0; i < codes.length; i++) {
+      var li = document.createElement("li");
+      li.innerHTML = "<code>" + API.esc(codes[i]) + '</code><button type="button" class="mini mono" data-copy="' + API.esc(codes[i]) + '">Copy</button>';
+      ul.appendChild(li);
+    }
+    $("genOut").hidden = false;
+  }
+
+  $("genList").addEventListener("click", function (ev) {
+    var b = ev.target.closest ? ev.target.closest("button[data-copy]") : null;
+    if (!b) return;
+    API.copy(b.getAttribute("data-copy")).then(function (ok) {
+      b.textContent = ok ? "Copied" : "Failed";
+      b.classList.add("did");
+      setTimeout(function () { b.textContent = "Copy"; b.classList.remove("did"); }, 1400);
+    });
+  });
+
+  $("btnCopyAll").addEventListener("click", function () {
+    var b = this;
+    API.copy(lastCodes.join("\n")).then(function (ok) {
+      b.textContent = ok ? "Copied" : "Failed";
+      setTimeout(function () { b.textContent = "Copy all"; }, 1400);
+    });
+  });
+
+  $("genForm").addEventListener("submit", function (ev) {
+    ev.preventDefault(); hideErr("genErr");
+    var k = adminKey(); if (!k) return lock();
+    var btn = $("btnGen");
+    var body = {
+      duration: $("genDuration").value,
+      count: parseInt($("genCount").value, 10) || 1,
+      note: $("genNote").value.trim(),
+    };
+    btn.disabled = true; btn.classList.add("busy"); $("genBatch").textContent = "WORKING";
+    API.admin.generate(k, body).then(function (r) {
+      btn.disabled = false; btn.classList.remove("busy");
+      if (!r.data.ok) { $("genBatch").textContent = "FAILED"; return showErr("genErr", r.data.message || "Could not generate codes."); }
+      $("genBatch").textContent = "BATCH " + (r.data.batch || "");
+      renderCodes(r.data.codes || [], r.data.label || "");
+      $("genNote").value = "";
+      load();
+    });
+  });
+
+  function renderVouchers(list, nowTs) {
+    var tb = $("vBody"); tb.innerHTML = "";
+    $("vCount").textContent = list.length + (list.length === 120 ? "+" : "");
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty mono">no codes yet</td></tr>'; return; }
+    for (var i = 0; i < list.length; i++) {
+      var v = list[i], tr = document.createElement("tr");
+      var status = v.revoked
+        ? '<span class="badge mono badge-bad">CANCELLED</span>'
+        : v.redeemed_at
+          ? '<span class="badge mono">USED &middot; @' + API.esc(v.redeemed_username || "?") + "</span>"
+          : '<span class="badge mono badge-hi">OPEN</span>';
+      if (v.redeemed_at || v.revoked) tr.className = "used";
+      tr.innerHTML =
+        '<td><code class="mono code-cell">' + API.esc(v.code) + "</code></td>" +
+        '<td class="mono">' + API.esc(v.label) + "</td>" +
+        "<td>" + status + "</td>" +
+        '<td class="mono small dim">' + API.esc(v.note || "--") + "</td>" +
+        '<td class="mono small dim">' + API.esc(API.ago(v.created_at, nowTs)) + "</td>" +
+        '<td class="acts">' +
+          '<button type="button" class="mini mono" data-copy-code="' + API.esc(v.code) + '">Copy</button>' +
+          (v.redeemed_at || v.revoked ? "" : '<button type="button" class="mini mono" data-c="cancel_code" data-code="' + API.esc(v.code) + '">Cancel</button>') +
+          '<button type="button" class="mini mono danger" data-c="delete_code" data-code="' + API.esc(v.code) + '">Delete</button>' +
+        "</td>";
+      tb.appendChild(tr);
+    }
+  }
+
+  $("vBody").addEventListener("click", function (ev) {
+    var t = ev.target.closest ? ev.target : null;
+    if (!t) return;
+    var cp = t.closest("button[data-copy-code]");
+    if (cp) {
+      API.copy(cp.getAttribute("data-copy-code")).then(function (ok) {
+        cp.textContent = ok ? "Copied" : "Failed";
+        setTimeout(function () { cp.textContent = "Copy"; }, 1400);
+      });
+      return;
+    }
+    var b = t.closest("button[data-c]");
+    if (!b) return;
+    var action = b.getAttribute("data-c"), code = b.getAttribute("data-code");
+    if (action === "delete_code" && !confirm("Delete " + code + " for good?")) return;
+    if (action === "cancel_code" && !confirm("Cancel " + code + " so it can never be redeemed?")) return;
+    b.disabled = true;
+    API.admin.action(adminKey(), { action: action, code: code }).then(function (r) {
       b.disabled = false;
       if (!r.data.ok) return showErr("panelErr", r.data.message || "Action failed.");
       load();
