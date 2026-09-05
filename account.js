@@ -235,13 +235,17 @@
       $("keyValue").textContent = k.key;
       $("kvUses").textContent = k.uses;
       $("kvIssued").textContent = API.datetime(k.created_at);
-      $("kvExpires").textContent = API.datetime(k.expires_at);
+      $("kvExpires").textContent = k.never_expires ? "never" : API.datetime(k.expires_at);
       $("kvDevice").textContent = k.hwid_bound ? "bound " + API.ago(k.hwid_at, serverNow()) : "not bound yet";
       $("kvDevice").className = k.hwid_bound ? "ok" : "";
       $("resetNote").textContent = k.resets_left + " reset" + (k.resets_left === 1 ? "" : "s") + " left";
       $("btnReset").disabled = k.resets_left <= 0;
-      $("keyBarRight").textContent = "ACTIVE";
-      $("keyFoot").textContent = k.source === "admin" ? "This key was granted by the owner." : "Keep this private. The key is tied to @" + m.username + " and locks to the first PC that unlocks with it.";
+      $("keyBarRight").textContent = k.never_expires ? "ACTIVE \u00b7 NEVER EXPIRES" : "ACTIVE";
+      $("keyFoot").textContent = k.source === "admin"
+        ? "This key was granted by the owner."
+        : k.source === "gift"
+          ? "This key came from a gift code (" + (k.duration_label || "") + "). It is tied to @" + m.username + "."
+          : "Keep this private. The key is tied to @" + m.username + " and locks to the first PC that unlocks with it.";
       stage("key");
       startTick();
     } else {
@@ -254,7 +258,7 @@
   var EV = {
     register: "account created", login: "logged in", login_failed: "failed login attempt", claim: "key claimed", claim_failed: "checkpoint rejected",
     unlock: "unlocked in game", unlock_blocked: "unlock blocked (other device)", device_reset: "device reset", password_change: "password changed",
-    ban: "account banned", unban: "ban lifted", revoke: "key revoked", grant: "key granted by owner", plan: "plan changed"
+    ban: "account banned", unban: "ban lifted", revoke: "key revoked", grant: "key granted by owner", plan: "plan changed", redeem: "gift code redeemed", redeem_failed: "gift code rejected"
   };
   function renderEvents(list) {
     var ul = $("actList"); ul.innerHTML = "";
@@ -263,9 +267,10 @@
     for (var i = 0; i < list.length; i++) {
       var e = list[i], li = document.createElement("li");
       var label = EV[e.type] || e.type.replace(/_/g, " ");
-      if (e.type === "grant" && e.meta && e.meta.hours) label += " (" + e.meta.hours + "h)";
+      if (e.type === "grant" && e.meta && (e.meta.label || e.meta.hours)) label += " (" + (e.meta.label || e.meta.hours + "h") + ")";
+      if (e.type === "redeem" && e.meta && e.meta.label) label += " (" + e.meta.label + ")";
       if (e.type === "plan" && e.meta && e.meta.plan) label += " \u2192 " + e.meta.plan;
-      var bad = /failed|blocked|ban$|revoke/.test(e.type), good = /^(claim|unlock|grant|unban|register)$/.test(e.type);
+      var bad = /failed|blocked|ban$|revoke/.test(e.type), good = /^(claim|unlock|grant|unban|register|redeem)$/.test(e.type);
       li.innerHTML = '<i class="' + (bad ? "bad" : good ? "good" : "") + '"></i><span>' + API.esc(label) + '</span><time class="mono">' + API.esc(API.ago(e.at, serverNow())) + "</time>";
       ul.appendChild(li);
     }
@@ -273,6 +278,14 @@
 
   function startTick() {
     stopTick();
+    // A key with no expiry has nothing to count down.
+    if (me && me.key && me.key.never_expires) {
+      $("keyLeft").textContent = "never";
+      $("keyBar").style.width = "100%";
+      var pr = $("keyProgress"); if (pr) pr.classList.add("full");
+      return;
+    }
+    var pr2 = $("keyProgress"); if (pr2) pr2.classList.remove("full");
     function step() {
       if (!me || !me.key) return stopTick();
       var left = me.key.expires_at - serverNow();
@@ -284,6 +297,28 @@
     step(); tick = setInterval(step, 1000);
   }
   function stopTick() { if (tick) { clearInterval(tick); tick = null; } }
+
+  // ---------- gift code redeem ----------
+  $("redeemForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    hideErr("redeemErr");
+    var input = $("redeemCode");
+    var code = input.value.trim().toUpperCase().replace(/\s+/g, "");
+    if (!/^STATSX-GIFT-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
+      return showErr("redeemErr", "Gift codes look like STATSX-GIFT-XXXX-XXXX-XXXX.");
+    }
+    var btn = $("redeemSubmit");
+    busy(btn, true, "Checking\u2026");
+    API.redeem(code).then(function (r) {
+      busy(btn, false, "Redeem");
+      if (!r.data.ok) return showErr("redeemErr", r.data.message || "That code could not be redeemed.");
+      input.value = "";
+      applyMe(r.data.me);
+      $("keyCard").classList.add("pop");
+      setTimeout(function () { $("keyCard").classList.remove("pop"); }, 900);
+      toast("Gift code accepted \u00b7 " + (r.data.label || "key issued"));
+    });
+  });
 
   // ---------- toast ----------
   var toastTimer = null;
