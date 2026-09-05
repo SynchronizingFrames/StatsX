@@ -46,7 +46,7 @@ local LocalPlayer = Players.LocalPlayer
 -- this block runs until the server says the key is valid.
 ----------------------------------------------------------------------
 local GATE = {
-	API_URL      = "https://statsx-api.YOURNAME.workers.dev", -- your Worker URL, no trailing slash
+	API_URL      = "https://statsx-api.discordflex911.workers.dev/v1/health", -- your Worker URL, no trailing slash
 	SITE_URL     = "https://synchronizingframes.github.io/StatsX/account.html",
 	WORK_INK_URL = "https://work.ink/2EPc/statsx-key-12hr",
 	BUILD        = "1.17",
