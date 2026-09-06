@@ -172,10 +172,10 @@
     $("keyBarRight").textContent = "VERIFYING";
     $("claimLog").innerHTML = ""; hideErr("keyErr"); $("retryWrap").hidden = true;
     stage("claim"); scramble(true);
-    var l1 = logLine("checkpoint token received from work.ink");
+    var l1 = logLine("finish ticket received from the final checkpoint");
     var l2 = null, l3 = null;
     var started = Date.now();
-    setTimeout(function () { l1.className = "ok"; l2 = logLine("asking work.ink to confirm and burn the token"); }, 350);
+    setTimeout(function () { l1.className = "ok"; l2 = logLine("asking the server to confirm all 3 checkpoints"); }, 350);
     API.claim(token).then(function (r) {
       var wait = Math.max(0, 1400 - (Date.now() - started));
       setTimeout(function () {
@@ -220,7 +220,7 @@
     $("noneUser").textContent = "@" + m.username;
     $("useUser").textContent = "@" + m.username;
     $("keyHours").textContent = m.key_hours || 12;
-    if (m.workink_url) $("btnGet").href = m.workink_url; else $("btnGet").href = API.WORK_INK_URL;
+    $("btnGet").href = API.WORK_INK_URL; // always the gate, so all 3 checkpoints run in order
     $("loaderCode").textContent = 'loadstring(game:HttpGet("' + API.LOADER_URL + '"))()';
 
     $("stSince").textContent = API.date(m.created_at);

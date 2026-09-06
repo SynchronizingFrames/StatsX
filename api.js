@@ -5,9 +5,12 @@
   // ===== CONFIG (cam edits these) ==========================================
   // 1) Your Cloudflare Worker URL (no trailing slash). Shown on the Worker's overview page.
   var API_URL = "https://statsx-api.discordflex911.workers.dev";
-  // 2) Your work.ink link. In the work.ink dashboard set its DESTINATION URL to:
-  //      https://synchronizingframes.github.io/StatsX/account.html?token={TOKEN}
-  var WORK_INK_URL = "https://work.ink/2EPc/statsx-key-12hr";
+  // 2) Where "Get free key" sends people. This is the Worker's gate, NOT a
+  //    work.ink link: it walks them through all three checkpoints in order
+  //    and only the final one hands back a claimable ticket.
+  //    Open API_URL + "/v1/gate/setup" to get the destination URL to paste
+  //    into each of the three work.ink links.
+  var WORK_INK_URL = API_URL + "/v1/gate/start";
   // 3) The loader users paste into their executor (your obfuscated StatsX gist).
   var LOADER_URL = "https://gist.githubusercontent.com/SynchronizingFrames/738ff6965f638c29de79af05fb8ccd7d/raw/StatsX.obf.lua";
   // ========================================================================
